@@ -39,6 +39,8 @@ RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromis
                                                                                      CVV:[options valueForKey:@"cvv"]
                                                                                    error:&error];
 
+    params.shopperResultURL = [options valueForKey:@"shopperResultURL"];
+
     if (error) {
         reject(@"oppwa/card-init",error.localizedDescription, error);
     } else {

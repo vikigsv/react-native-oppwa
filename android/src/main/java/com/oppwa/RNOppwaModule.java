@@ -135,6 +135,7 @@ public class RNOppwaModule extends ReactContextBaseJavaModule implements ITransa
           options.getString("expiryMonth"), options.getString("expiryYear"), options.getString("cvv"));
 
       cardPaymentParams.setTokenizationEnabled(true);
+      cardPaymentParams.setShopperResultUrl(options.getString("shopperResultURL"));
       Transaction transaction = null;
 
       try {
