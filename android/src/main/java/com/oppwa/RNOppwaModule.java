@@ -87,15 +87,40 @@ public class RNOppwaModule extends ReactContextBaseJavaModule implements ITransa
     return "RNOppwa";
   }
 
-  @ReactMethod 
+  @ReactMethod
+  public void isValidHolderName(ReadableMap options, Promise promise) {
+    if (!CardPaymentParams.isHolderValid(options.getString("cardHolderName"))) {
+      promise.reject("oppwa/card-invalid", "The card holder name is invalid.");
+    } else {
+      promise.resolve(null);
+    }
+  }
+
+  @ReactMethod
+  public void isValidCVV(ReadableMap options, Promise promise) {
+    if (!CardPaymentParams.isCvvValid(options.getString("cvv"))) {
+      promise.reject("oppwa/card-invalid", "The card cvv is invalid.");
+    } else {
+      promise.resolve(null);
+    }
+  }
+
+  @ReactMethod
+  public void isValidExpiryDate(ReadableMap options, Promise promise) {
+    if (CardPaymentParams.isCardExpired(options.getString("expiryMonth"), options.getString("expiryYear"))) {
+      promise.reject("oppwa/card-invalid", "The card expiry date is invalid.");
+    } else {
+      promise.resolve(null);
+    }
+  }
+
+  @ReactMethod
   public void isValidNumber(ReadableMap options, Promise promise) {
     if (!CardPaymentParams.isNumberValid(options.getString("cardNumber"), options.getString("paymentBrand"))) {
       promise.reject("oppwa/card-invalid", "The card number is invalid.");
     } else {
       promise.resolve(null);
     }
-
-    
   }
 
   @ReactMethod
@@ -120,7 +145,7 @@ public class RNOppwaModule extends ReactContextBaseJavaModule implements ITransa
         binder.addTransactionListener(RNOppwaModule.this);
         WritableMap data = Arguments.createMap();
         data.putString("OS", "android");
-  
+
         promise.resolve(data);
       } catch (PaymentException ee) {
         promise.reject(null, ee.getMessage());

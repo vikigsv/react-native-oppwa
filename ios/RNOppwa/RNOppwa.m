@@ -17,7 +17,7 @@ RCT_EXPORT_MODULE(RNOppwa);
         provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeLive];
 #endif
     }
-    
+
     return self;
 }
 
@@ -25,12 +25,12 @@ RCT_EXPORT_MODULE(RNOppwa);
  * transaction
  */
 RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     NSError * _Nullable error;
-    
+
     NSMutableDictionary *result = [[NSMutableDictionary alloc]initWithCapacity:10];
     OPPCardPaymentParams *params = [OPPCardPaymentParams cardPaymentParamsWithCheckoutID:[options valueForKey:@"checkoutID"]
-                                    
+
                                                                             paymentBrand:[options valueForKey:@"paymentBrand"]
                                                                                   holder:[options valueForKey:@"holderName"]
                                                                                   number:[options valueForKey:@"cardNumber"]
@@ -38,13 +38,13 @@ RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromis
                                                                               expiryYear:[options valueForKey:@"expiryYear"]
                                                                                      CVV:[options valueForKey:@"cvv"]
                                                                                    error:&error];
-    
+
     if (error) {
         reject(@"oppwa/card-init",error.localizedDescription, error);
     } else {
         params.tokenizationEnabled = YES;
         OPPTransaction *transaction = [OPPTransaction transactionWithPaymentParams:params];
-        
+
         [provider submitTransaction:transaction completionHandler:^(OPPTransaction * _Nonnull transaction, NSError * _Nullable error) {
             if (transaction.type == OPPTransactionTypeAsynchronous) {
                 // Open transaction.redirectURL in Safari browser to complete the transaction
@@ -69,13 +69,49 @@ RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromis
  */
 RCT_EXPORT_METHOD(isValidNumber:
                   (NSDictionary*)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    
-    
+
+
     if ([OPPCardPaymentParams isNumberValid:[options valueForKey:@"cardNumber"] forPaymentBrand:[options valueForKey:@"paymentBrand"]]) {
         resolve([NSNull null]);
     }
     else {
         reject(@"oppwa/card-invalid", @"The card number is invalid.", nil);
+    }
+}
+
+RCT_EXPORT_METHOD(isValidHolderName:
+                  (NSDictionary*)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+
+
+    if ([OPPCardPaymentParams isHolderValid:[options valueForKey:@"cardHolderName"]]) {
+        resolve([NSNull null]);
+    }
+    else {
+        reject(@"oppwa/card-invalid", @"The card holder name is invalid.", nil);
+    }
+}
+
+RCT_EXPORT_METHOD(isValidCVV:
+                  (NSDictionary*)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+
+
+    if ([OPPCardPaymentParams isCvvValid:[options valueForKey:@"cvv"]]) {
+        resolve([NSNull null]);
+    }
+    else {
+        reject(@"oppwa/card-invalid", @"The card cvv is invalid.", nil);
+    }
+}
+
+RCT_EXPORT_METHOD(isValidExpiryDate:
+                  (NSDictionary*)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+
+
+    if (![OPPCardPaymentParams isExpiredWithExpiryMonth:[options valueForKey:@"expiryMonth"] andYear:[options valueForKey:@"expiryYear"]]) {
+        resolve([NSNull null]);
+    }
+    else {
+        reject(@"oppwa/card-invalid", @"The card expiry date is invalid.", nil);
     }
 }
 
