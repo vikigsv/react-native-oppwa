@@ -11,11 +11,11 @@ RCT_EXPORT_MODULE(RNOppwa);
 {
     self = [super init];
     if (self) {
-#ifdef DEBUG
+    #ifdef DEBUG
+        provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeTest];
+    #else
         provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeLive];
-#else
-        provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeLive];
-#endif
+    #endif
     }
 
     return self;
