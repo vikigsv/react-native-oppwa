@@ -126,6 +126,17 @@ public class RNOppwaModule extends ReactContextBaseJavaModule implements ITransa
   @ReactMethod
   public void transactionPayment(ReadableMap options, Promise promise) {
     // promiseModule = promise;
+    if (options.getString("environment") != null) {
+      try {
+        if (options.getString("environment") == "LIVE") {
+          binder.initializeProvider(Connect.ProviderMode.LIVE);
+        } else {
+          binder.initializeProvider(Connect.ProviderMode.TEST);
+        }
+      } catch (PaymentException e) {
+        promise.reject(null, e.getMessage());
+      }
+    }
 
     try {
 

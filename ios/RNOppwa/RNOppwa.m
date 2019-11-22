@@ -11,11 +11,7 @@ RCT_EXPORT_MODULE(RNOppwa);
 {
     self = [super init];
     if (self) {
-    #ifdef DEBUG
-        provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeTest];
-    #else
         provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeLive];
-    #endif
     }
 
     return self;
@@ -29,6 +25,15 @@ RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromis
     NSError * _Nullable error;
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc]initWithCapacity:10];
+
+    if([options valueForKey:@"environment"] != nil) {
+        if([[options valueForKey:@"environment"] isEqualToString:@"LIVE"]) {
+            provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeLive];
+        } else {
+            provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeTest];
+        }
+    }
+
     OPPCardPaymentParams *params = [OPPCardPaymentParams cardPaymentParamsWithCheckoutID:[options valueForKey:@"checkoutID"]
 
                                                                             paymentBrand:[options valueForKey:@"paymentBrand"]
