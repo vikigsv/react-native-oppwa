@@ -47,7 +47,7 @@ RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromis
                                                                                    error:&error];
 
     params.shopperResultURL = [options valueForKey:@"shopperResultURL"];
-
+    [result setObject:[options valueForKey:@"checkoutID"] forKey:@"checkoutID"];
     if (error) {
         reject(@"oppwa/card-init",error.localizedDescription, error);
     } else {
