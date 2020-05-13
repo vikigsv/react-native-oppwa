@@ -126,17 +126,19 @@ public class RNOppwaModule extends ReactContextBaseJavaModule implements ITransa
   @ReactMethod
   public void transactionPayment(ReadableMap options, Promise promise) {
     // promiseModule = promise;
-    if (options.getString("environment") != null) {
-      try {
-        if (options.getString("environment") == "LIVE") {
-          binder.initializeProvider(Connect.ProviderMode.LIVE);
-        } else {
-          binder.initializeProvider(Connect.ProviderMode.TEST);
-        }
-      } catch (PaymentException e) {
-        promise.reject(null, e.getMessage());
-      }
-    }
+    //todo:: UNCOMMENT BELOW LINE
+//    if (options.getString("environment") != null) {
+//      try {
+//
+//        if (options.getString("environment") == "LIVE") {
+//          binder.initializeProvider(Connect.ProviderMode.LIVE);
+//        } else {
+//          binder.initializeProvider(Connect.ProviderMode.TEST);
+//        }
+//      } catch (PaymentException e) {
+//        promise.reject(null, e.getMessage());
+//      }
+//    }
 
     try {
 
@@ -184,14 +186,16 @@ public class RNOppwaModule extends ReactContextBaseJavaModule implements ITransa
   public void transactionCompleted(Transaction transaction) {
     // shoud add listner
     WritableMap data = Arguments.createMap();
-    data.putString("status", "transactionCompleted");
+
     data.putString("checkoutID", transaction.getPaymentParams().getCheckoutId());
 
     if (transaction.getTransactionType() == TransactionType.SYNC) {
       data.putString("type","synchronous");
+      data.putString("status", "transactionCompleted");
     }else {
       data.putString("type","asynchronous");
       data.putString("redirectURL",transaction.getRedirectUrl());
+      data.putString("status", "transactionPending");
     }
 
     getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
