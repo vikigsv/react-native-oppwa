@@ -26,13 +26,15 @@ RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromis
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc]initWithCapacity:10];
 
-    if([options valueForKey:@"environment"] != nil) {
-        if([[options valueForKey:@"environment"] isEqualToString:@"LIVE"]) {
-            provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeLive];
-        } else {
-            provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeTest];
-        }
-    }
+//FIX: Removing the below code because of PROD Payment issue
+    
+//    if([options valueForKey:@"environment"] != nil) {
+//        if([[options valueForKey:@"environment"] isEqualToString:@"LIVE"]) {
+//            provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeLive];
+//        } else {
+//            provider = [OPPPaymentProvider paymentProviderWithMode:OPPProviderModeTest];
+//        }
+//    }
 
     OPPCardPaymentParams *params = [OPPCardPaymentParams cardPaymentParamsWithCheckoutID:[options valueForKey:@"checkoutID"]
 
@@ -55,7 +57,7 @@ RCT_EXPORT_METHOD(transactionPayment: (NSDictionary*)options resolver:(RCTPromis
         [provider submitTransaction:transaction completionHandler:^(OPPTransaction * _Nonnull transaction, NSError * _Nullable error) {
             if (transaction.type == OPPTransactionTypeAsynchronous) {
                 // Open transaction.redirectURL in Safari browser to complete the transaction
-                [result setObject:[NSString stringWithFormat:@"transactionCompleted"] forKey:@"status"];
+                [result setObject:[NSString stringWithFormat:@"transactionPending"] forKey:@"status"];
                 [result setObject:[NSString stringWithFormat:@"asynchronous"] forKey:@"type"];
                 [result setObject:[NSString stringWithFormat:@"%@",transaction.redirectURL] forKey:@"redirectURL"];
                 resolve(result);
