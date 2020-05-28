@@ -28,6 +28,7 @@ import com.oppwa.mobile.connect.payment.CheckoutInfo;
 import com.oppwa.mobile.connect.payment.ImagesRequest;
 import com.oppwa.mobile.connect.payment.card.CardPaymentParams;
 import com.oppwa.mobile.connect.provider.Connect;
+import com.oppwa.mobile.connect.provider.ChinaUnionPayPaymentParams;
 import com.oppwa.mobile.connect.provider.ITransactionListener;
 import com.oppwa.mobile.connect.provider.Transaction;
 import com.oppwa.mobile.connect.provider.TransactionType;
@@ -168,6 +169,40 @@ public class RNOppwaModule extends ReactContextBaseJavaModule implements ITransa
       promise.reject(null, e.getMessage());
     }
 
+  }
+
+  @ReactMethod
+  public void isChinaUnionPayValidHolderName(ReadableMap options, Promise promise) {
+    if (!ChinaUnionPayPaymentParams.isHolderValid(options.getString("holderName"))) {
+      promise.reject("oppwa/card-invalid", "The holder name is invalid.");
+    } else {
+      promise.resolve(null);
+    }
+  }
+
+  @ReactMethod
+  public void chinaUnionPaytransactionPayment(ReadableMap options, Promise promise) {
+    try {
+      ChinaUnionPayPaymentParams paymentParams = new ChinaUnionPayPaymentParams(options.getString("checkoutID"), options.getString("holderName"));
+
+      Transaction transaction = null;
+
+      try {
+
+        transaction = new Transaction(paymentParams);
+
+        binder.submitTransaction(transaction);
+        binder.addTransactionListener(RNOppwaModule.this);
+        WritableMap data = Arguments.createMap();
+        data.putString("OS", "android");
+
+        promise.resolve(data);
+      } catch (PaymentException ee) {
+        promise.reject(null, ee.getMessage());
+      }
+    } catch (PaymentException e) {
+      promise.reject(null, e.getMessage());
+    }
   }
 
   @Override
